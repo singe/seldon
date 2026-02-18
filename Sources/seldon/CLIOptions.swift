@@ -5,6 +5,7 @@ struct CLIOptions {
     let interactive: Bool
     let prompt: String?
     let temperature: Double?
+    let toolsPath: String?
     let parseError: String?
 
     static func parse(arguments: [String]) -> CLIOptions {
@@ -12,6 +13,7 @@ struct CLIOptions {
         var interactive = false
         var prompt: String?
         var temperature: Double?
+        var toolsPath: String?
         var parseError: String?
 
         var index = 0
@@ -70,6 +72,33 @@ struct CLIOptions {
                 index += 1
                 continue
             }
+            if arg == "--tools" {
+                let raw: String?
+                if index + 1 < arguments.count {
+                    raw = arguments[index + 1]
+                    index += 2
+                } else {
+                    raw = nil
+                    index += 1
+                }
+
+                if let raw, !raw.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    toolsPath = raw
+                } else {
+                    setParseError(&parseError, "Error: --tools requires a file path. Run with --help for usage.")
+                }
+                continue
+            }
+            if arg.hasPrefix("--tools=") {
+                let raw = String(arg.dropFirst("--tools=".count))
+                if raw.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    setParseError(&parseError, "Error: --tools requires a file path. Run with --help for usage.")
+                } else {
+                    toolsPath = raw
+                }
+                index += 1
+                continue
+            }
 
             if arg.hasPrefix("-") {
                 setParseError(&parseError, "Error: unknown option '\(arg)'. Run with --help for usage.")
@@ -85,6 +114,7 @@ struct CLIOptions {
             interactive: interactive,
             prompt: prompt,
             temperature: temperature,
+            toolsPath: toolsPath,
             parseError: parseError
         )
     }

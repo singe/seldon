@@ -38,7 +38,7 @@ struct SeldonApp: App {
 
     var body: some Scene {
         WindowGroup("Seldon Chat") {
-            ContentView()
+            ContentView(runner: AppRuntime.runner, defaultTemperature: AppRuntime.defaultTemperature)
         }
     }
 }

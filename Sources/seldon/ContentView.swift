@@ -3,8 +3,12 @@ import AppKit
 import MarkdownUI
 
 struct ContentView: View {
-    @StateObject private var viewModel = ChatViewModel()
+    @StateObject private var viewModel: ChatViewModel
     @FocusState private var inputIsFocused: Bool
+
+    init(runner: ChatRunner = ChatRunner(), defaultTemperature: Double? = nil) {
+        _viewModel = StateObject(wrappedValue: ChatViewModel(runner: runner, defaultTemperature: defaultTemperature))
+    }
 
     var body: some View {
         VStack(spacing: 12) {
@@ -77,7 +81,7 @@ struct ContentView: View {
                 Text(style.label)
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                messageText(for: message.text)
+                messageText(for: message)
                     .textSelection(.enabled)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
@@ -98,8 +102,22 @@ struct ContentView: View {
         }
     }
 
-    private func messageText(for text: String) -> some View {
-        Markdown(text)
+    @ViewBuilder
+    private func messageText(for message: ChatMessage) -> some View {
+        // Rendering markdown for every streamed token can stall the UI.
+        // Show plain text while generation is in-flight, then render markdown once complete.
+        if shouldRenderPlainText(message) {
+            Text(message.text)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        } else {
+            Markdown(message.text)
+        }
+    }
+
+    private func shouldRenderPlainText(_ message: ChatMessage) -> Bool {
+        guard viewModel.isSending else { return false }
+        guard message.role == .assistant else { return false }
+        return viewModel.messages.last?.id == message.id
     }
 
     private func copyToClipboard(_ text: String) {

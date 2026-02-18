@@ -6,6 +6,9 @@
 # Swift Package Manager
 .build/
 .swiftpm/
+.swiftpm-cache/
+.swiftpm-home/
+.clang-cache/
 Package.resolved
 
 # Xcode

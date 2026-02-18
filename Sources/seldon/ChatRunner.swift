@@ -18,19 +18,33 @@ actor ChatRunner {
         self.modelClient = modelClient
     }
 
+    init(loadedTools: LoadedTools?) {
+        self.modelClient = AppleFoundationModelClient(loadedTools: loadedTools)
+    }
+
     func run(
         _ request: ChatRunRequest,
         onToken: @Sendable (String) async -> Void = { _ in }
     ) async throws -> String {
+        DebugLog.log("ChatRunner.run enter mode=\(request.mode) temp=\(request.temperature?.description ?? "nil") promptLen=\(request.prompt.count)")
+        await ToolCancellationState.shared.reset()
+        DebugLog.log("ChatRunner.run after cancel reset")
+
         switch request.mode {
         case .singleShot:
-            return try await modelClient.send(prompt: request.prompt, temperature: request.temperature)
+            DebugLog.log("ChatRunner.run singleShot dispatch")
+            let output = try await modelClient.send(prompt: request.prompt, temperature: request.temperature)
+            DebugLog.log("ChatRunner.run singleShot return len=\(output.count)")
+            return output
         case .streaming:
-            return try await modelClient.stream(
+            DebugLog.log("ChatRunner.run streaming dispatch")
+            let output = try await modelClient.stream(
                 prompt: request.prompt,
                 temperature: request.temperature,
                 onToken: onToken
             )
+            DebugLog.log("ChatRunner.run streaming return len=\(output.count)")
+            return output
         }
     }
 }

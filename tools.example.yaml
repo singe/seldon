@@ -1,0 +1,41 @@
+tools:
+  - name: web_search
+    description: search the internet and return top results for a query
+    parameters:
+      - name: search_terms
+        type: string
+        description: the search query to run
+        required: true
+      - name: n
+        type: integer
+        description: number of results to return
+        required: true
+    command: /usr/bin/python3
+    args:
+      - tools/web_search.py
+      - "{{search_terms}}"
+      - "{{n}}"
+
+  - name: fetch_url
+    description: fetch and return text content from a URL
+    parameters:
+      - name: url
+        type: string
+        description: the absolute URL to fetch
+        required: true
+    command: /usr/bin/python3
+    args:
+      - tools/fetch_url.py
+      - "{{url}}"
+
+  - name: calculator
+    description: evaluate arithmetic expressions for large or complex sums
+    parameters:
+      - name: expression
+        type: string
+        description: arithmetic expression using +, -, *, /, //, %, ** and parentheses
+        required: true
+    command: /usr/bin/python3
+    args:
+      - tools/calculator.py
+      - "{{expression}}"

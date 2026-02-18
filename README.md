@@ -43,6 +43,24 @@ seldon --cli --temperature 0.2
 seldon --prompt "Summarize this log file" --temperature=0.7
 ```
 
+The same `--temperature` value is also applied to GUI mode if you launch `seldon` with that flag.
+
+## Tool Calling
+
+Pass a tools YAML file to enable Foundation Models tool calling:
+
+```bash
+seldon --tools tools.example.yaml
+seldon --cli --tools tools.example.yaml
+seldon --prompt "search the web for hari seldon and describe the top result" --tools tools.example.yaml
+```
+
+Example config is included at `tools.example.yaml` with three basic tools:
+
+- `web_search` implemented by `tools/web_search.py`
+- `fetch_url` implemented by `tools/fetch_url.py`
+- `calculator` implemented by `tools/calculator.py`
+
 ## Foundation Models support
 
 - The app uses Apple's on-device Foundation Models API when available.

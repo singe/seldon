@@ -8,7 +8,8 @@ enum CLIRunner {
       seldon --prompt TEXT    Run one headless prompt (non-streaming)
 
     Options:
-      --temperature VALUE         Sampling temperature (0.0 to 2.0) for CLI modes
+      --temperature VALUE         Sampling temperature (0.0 to 2.0) for CLI/GUI/prompt
+      --tools PATH                Load tool definitions from a YAML file
       --help, -h                  Show this help
     """
 
