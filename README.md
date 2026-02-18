@@ -1,8 +1,6 @@
-# SeldonChat
+# seldon
 
-SeldonChat lets you interact with Apple's on-device LLM Foundation models on macOS.
-It's a minimal native macOS chat app built with SwiftUI as a Swift Package.
-It has a UI, terminal REPL and single shot command mode.
+seldon lets you interact with Apple's on-device LLM Foundation models on macOS. It's a minimal native macOS chat app built with SwiftUI as a Swift Package. It has a UI, terminal REPL and single shot command mode.
 
 By @singe
 
@@ -12,14 +10,10 @@ By @singe
 swift build -c release
 ```
 
-## Run
+## GUI Mode
 
 ```bash
-swift run
-```
-or once compiled
-```
-SeldonChat
+seldon
 ```
 
 This launches a native window (`Seldon Chat`).
@@ -29,7 +23,7 @@ This launches a native window (`Seldon Chat`).
 Interactive terminal mode:
 
 ```bash
-SeldonChat --cli
+seldon --cli
 ```
 
 `--cli` streams the model output as it is generated.
@@ -37,7 +31,7 @@ SeldonChat --cli
 Single-shot headless mode (for scripts):
 
 ```bash
-SeldonChat --prompt "What is psychohistory?"
+seldon --prompt "What is psychohistory?"
 ```
 
 `--prompt` prints a single final response (no streaming), then exits.
@@ -45,8 +39,8 @@ SeldonChat --prompt "What is psychohistory?"
 Optional sampling temperature for CLI modes (`0.0` to `2.0`):
 
 ```bash
-swift run SeldonChat --cli --temperature 0.2
-swift run SeldonChat --prompt "Summarize this log file" --temperature=0.7
+seldon --cli --temperature 0.2
+seldon --prompt "Summarize this log file" --temperature=0.7
 ```
 
 ## Foundation Models support

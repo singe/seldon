@@ -2,23 +2,23 @@
 import PackageDescription
 
 let package = Package(
-    name: "SeldonChat",
+    name: "seldon",
     platforms: [
         .macOS(.v15)
     ],
     products: [
-        .executable(name: "SeldonChat", targets: ["SeldonChat"])
+        .executable(name: "seldon", targets: ["seldon"])
     ],
     dependencies: [
         .package(url: "https://github.com/gonzalezreal/swift-markdown-ui", from: "2.4.1")
     ],
     targets: [
         .executableTarget(
-            name: "SeldonChat",
+            name: "seldon",
             dependencies: [
                 .product(name: "MarkdownUI", package: "swift-markdown-ui")
             ],
-            path: "Sources/SeldonChat"
+            path: "Sources/seldon"
         )
     ]
 )

@@ -3,9 +3,9 @@ import Foundation
 enum CLIRunner {
     private static let usage = """
     Usage:
-      SeldonChat                  Launch GUI
-      SeldonChat --cli            Start interactive CLI (streaming)
-      SeldonChat --prompt TEXT    Run one headless prompt (non-streaming)
+      seldon                  Launch GUI
+      seldon --cli            Start interactive CLI (streaming)
+      seldon --prompt TEXT    Run one headless prompt (non-streaming)
 
     Options:
       --temperature VALUE         Sampling temperature (0.0 to 2.0) for CLI modes
@@ -49,7 +49,7 @@ enum CLIRunner {
     }
 
     private static func runInteractive(temperature: Double?, runner: ChatRunner) async {
-        print("SeldonChat CLI (type 'exit' or press Ctrl-D to quit)")
+        print("seldon CLI (type 'exit' or press Ctrl-D to quit)")
         while true {
             print("seldon> ", terminator: "")
             fflush(stdout)
