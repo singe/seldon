@@ -54,7 +54,7 @@ struct ContentView: View {
             }
             .padding(12)
         }
-        .frame(minWidth: 560, minHeight: 700)
+        .frame(minWidth: 320, maxWidth: .infinity, minHeight: 100, maxHeight: .infinity)
         .onAppear {
             DispatchQueue.main.async {
                 inputIsFocused = true
