@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import MarkdownUI
 
 struct ContentView: View {
     @StateObject private var viewModel = ChatViewModel()
@@ -49,7 +50,7 @@ struct ContentView: View {
                         viewModel.send()
                     }
                 }
-                .disabled(!viewModel.isSending && viewModel.input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                .disabled(!viewModel.isSending && ChatTextUtilities.normalizePrompt(viewModel.input) == nil)
             }
             .padding(12)
         }
@@ -97,18 +98,8 @@ struct ContentView: View {
         }
     }
 
-    @ViewBuilder
     private func messageText(for text: String) -> some View {
-        let options = AttributedString.MarkdownParsingOptions(
-            interpretedSyntax: .inlineOnlyPreservingWhitespace,
-            failurePolicy: .returnPartiallyParsedIfPossible
-        )
-
-        if let attributed = try? AttributedString(markdown: text, options: options) {
-            Text(attributed)
-        } else {
-            Text(text)
-        }
+        Markdown(text)
     }
 
     private func copyToClipboard(_ text: String) {

@@ -56,7 +56,7 @@ struct CLIOptions {
                 if let parsed = parseTemperature(raw) {
                     temperature = parsed
                 } else {
-                    parseError = "Error: --temperature requires a numeric value between 0.0 and 2.0."
+                    setParseError(&parseError, "Error: --temperature requires a numeric value between 0.0 and 2.0. Run with --help for usage.")
                 }
                 continue
             }
@@ -65,8 +65,14 @@ struct CLIOptions {
                 if let parsed = parseTemperature(raw) {
                     temperature = parsed
                 } else {
-                    parseError = "Error: --temperature requires a numeric value between 0.0 and 2.0."
+                    setParseError(&parseError, "Error: --temperature requires a numeric value between 0.0 and 2.0. Run with --help for usage.")
                 }
+                index += 1
+                continue
+            }
+
+            if arg.hasPrefix("-") {
+                setParseError(&parseError, "Error: unknown option '\(arg)'. Run with --help for usage.")
                 index += 1
                 continue
             }
@@ -86,5 +92,11 @@ struct CLIOptions {
     private static func parseTemperature(_ raw: String?) -> Double? {
         guard let raw, let value = Double(raw), (0.0...2.0).contains(value) else { return nil }
         return value
+    }
+
+    private static func setParseError(_ parseError: inout String?, _ message: String) {
+        if parseError == nil {
+            parseError = message
+        }
     }
 }

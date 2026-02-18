@@ -17,8 +17,7 @@ final class ChatViewModel: ObservableObject {
     }
 
     func send() {
-        let trimmed = input.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty, !isSending else { return }
+        guard let trimmed = ChatTextUtilities.normalizePrompt(input), !isSending else { return }
 
         input = ""
         isSending = true
@@ -44,7 +43,7 @@ final class ChatViewModel: ObservableObject {
                 }
 
                 if let index = messages.firstIndex(where: { $0.id == assistantMessageID }),
-                   messages[index].text.isEmpty {
+                messages[index].text.isEmpty {
                     messages[index].text = response
                 }
             } catch is CancellationError {
