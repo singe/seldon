@@ -17,6 +17,8 @@ seldon
 ```
 
 This launches a native window (`Seldon Chat`).
+<img width="628" height="474" alt="image" src="https://github.com/user-attachments/assets/eb6fae9c-f192-4d5f-8ec2-2630fc34ece4" />
+
 
 ## CLI Mode
 
