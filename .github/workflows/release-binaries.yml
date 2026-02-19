@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   build-and-upload:
-    name: Build and upload macOS binary
+    name: Build and upload macOS artifacts
     runs-on: macos-latest
 
     steps:
@@ -21,26 +21,15 @@ jobs:
         with:
           xcode-version: latest-stable
 
-      - name: Build release binary
-        run: swift build -c release --product seldon
+      - name: Build release artifacts
+        run: make release-assets
 
-      - name: Package binary
-        id: package
-        shell: bash
-        run: |
-          set -euo pipefail
-          ARCH="$(uname -m)"
-          NAME="seldon-macos-${ARCH}"
-          mkdir -p dist
-          cp .build/release/seldon "dist/${NAME}"
-          chmod +x "dist/${NAME}"
-          tar -C dist -czf "dist/${NAME}.tar.gz" "${NAME}"
-          echo "asset=dist/${NAME}.tar.gz" >> "$GITHUB_OUTPUT"
-
-      - name: Upload binary to existing release
+      - name: Upload artifacts to existing release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release upload "${{ github.event.release.tag_name }}" \
-            "${{ steps.package.outputs.asset }}" \
+            "dist/seldon-macos-$(uname -m)" \
+            "dist/seldon-macos-$(uname -m)-with-tools.tar.gz" \
+            "dist/Seldon-macos-$(uname -m).app.zip" \
             --clobber
