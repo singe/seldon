@@ -16,10 +16,6 @@ enum CLIRunner {
             }
             return (isNew, printedAnyTokens)
         }
-
-        func allTools() -> [String] {
-            tools
-        }
     }
 
     private static let usage = """
@@ -64,11 +60,11 @@ enum CLIRunner {
             let request = ChatRunRequest(prompt: trimmed, temperature: temperature, mode: .singleShot)
             let toolState = ToolUsageState()
             let response = try await runner.run(request, onToolUse: { toolName in
-                _ = await toolState.noteTool(toolName)
-            })
-            for toolName in await toolState.allTools() {
+                let status = await toolState.noteTool(toolName)
+                guard status.isNew else { return }
                 print("[tool] \(toolName)")
-            }
+                fflush(stdout)
+            })
             print(response)
         } catch {
             fputs("Error: \(error.localizedDescription)\n", stderr)

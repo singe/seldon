@@ -10,6 +10,29 @@ By @singe
 swift build -c release
 ```
 
+## Packaging
+
+Build artifacts with `make`:
+
+```bash
+make binary        # dist/seldon-macos-<arch>
+make bundle        # dist/seldon-macos-<arch>-with-tools.tar.gz
+make app           # dist/Seldon-macos-<arch>.app.zip
+make release-assets
+```
+
+The app bundle launcher automatically runs:
+
+```bash
+--tools <bundled tools.example.yaml>
+```
+
+GitHub releases publish:
+
+1. `seldon-macos-<arch>` (standalone binary)
+2. `seldon-macos-<arch>-with-tools.tar.gz` (binary + `tools/` + `tools.example.yaml`)
+3. `Seldon-macos-<arch>.app.zip` (macOS app bundle)
+
 ## GUI Mode
 
 ```bash

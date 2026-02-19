@@ -82,7 +82,7 @@ struct ContentView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 if !message.toolNotices.isEmpty {
-                    Text(message.toolNotices.map { "Tool used: \($0)" }.joined(separator: " • "))
+                    Text(message.toolNotices.joined(separator: " • "))
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }

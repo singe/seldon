@@ -6,6 +6,7 @@ struct CLIOptions {
     let prompt: String?
     let temperature: Double?
     let toolsPath: String?
+    let selfTestGUIFlow: Bool
     let parseError: String?
 
     static func parse(arguments: [String]) -> CLIOptions {
@@ -14,6 +15,7 @@ struct CLIOptions {
         var prompt: String?
         var temperature: Double?
         var toolsPath: String?
+        var selfTestGUIFlow = false
         var parseError: String?
 
         var index = 0
@@ -27,6 +29,11 @@ struct CLIOptions {
             }
             if arg == "--cli" {
                 interactive = true
+                index += 1
+                continue
+            }
+            if arg == "--self-test-gui-flow" {
+                selfTestGUIFlow = true
                 index += 1
                 continue
             }
@@ -109,12 +116,17 @@ struct CLIOptions {
             index += 1
         }
 
+        if selfTestGUIFlow && !DebugLog.enabled {
+            setParseError(&parseError, "Error: --self-test-gui-flow requires SELDON_DEBUG=1. Run with SELDON_DEBUG=1 to enable this internal harness.")
+        }
+
         return CLIOptions(
             showHelp: showHelp,
             interactive: interactive,
             prompt: prompt,
             temperature: temperature,
             toolsPath: toolsPath,
+            selfTestGUIFlow: selfTestGUIFlow,
             parseError: parseError
         )
     }

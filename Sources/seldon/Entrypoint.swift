@@ -9,6 +9,9 @@ enum SeldonEntrypoint {
             await CLIRunner.run(with: options)
             return
         }
+        if options.selfTestGUIFlow {
+            exit(await SelfTestHarness.runGUIFlow())
+        }
 
         let loadedTools: LoadedTools?
         do {

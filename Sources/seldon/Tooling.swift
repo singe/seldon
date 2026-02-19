@@ -377,7 +377,9 @@ struct ExternalCommandTool: Tool {
         }
 
         do {
+            DebugLog.log("tool call emit start name=\(definition.name)")
             await ToolUseEvents.shared.emit(toolName: definition.name)
+            DebugLog.log("tool call emit complete name=\(definition.name)")
             DebugLog.log("tool call start name=\(definition.name) argKeys=\(values.keys.sorted().joined(separator: ","))")
             let response = try await ExternalToolExecutor.execute(tool: definition, arguments: values)
             DebugLog.log("tool call complete name=\(definition.name) responseLen=\(response.count)")
