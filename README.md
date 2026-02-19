@@ -1,5 +1,7 @@
 # seldon
 
+<img width="889" height="343" alt="image" src="./assets/logo.png" />
+
 seldon lets you interact with Apple's on-device LLM Foundation models on macOS. It's a minimal native macOS chat app built with SwiftUI as a Swift Package. It has a UI, terminal REPL and single shot command mode.
 
 By @singe

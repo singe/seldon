@@ -8,7 +8,7 @@ ARCH="${ARCH:-$(uname -m)}"
 APP_NAME="${APP_NAME:-Seldon}"
 BUNDLE_NAME="${BUNDLE_NAME:-${APP_NAME}.app}"
 ZIP_NAME="${ZIP_NAME:-${APP_NAME}-macos-${ARCH}.app.zip}"
-ICON_SOURCE="${ICON_SOURCE:-$ROOT/app-icon.png}"
+ICON_SOURCE="${ICON_SOURCE:-$ROOT/assets/app-icon.png}"
 
 APP_DIR="$DIST_DIR/$BUNDLE_NAME"
 rm -rf "$APP_DIR"

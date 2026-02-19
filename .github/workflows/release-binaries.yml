@@ -24,12 +24,16 @@ jobs:
       - name: Build release artifacts
         run: make release-assets
 
+      - name: Compress standalone binary
+        run: |
+          tar -C dist -czf "dist/seldon-macos-$(uname -m).tar.gz" "seldon-macos-$(uname -m)"
+
       - name: Upload artifacts to existing release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release upload "${{ github.event.release.tag_name }}" \
-            "dist/seldon-macos-$(uname -m)" \
+            "dist/seldon-macos-$(uname -m).tar.gz" \
             "dist/seldon-macos-$(uname -m)-with-tools.tar.gz" \
             "dist/Seldon-macos-$(uname -m).app.zip" \
             --clobber
