@@ -31,6 +31,30 @@ struct ExternalToolParameter: Sendable {
     let required: Bool
 }
 
+actor ToolUseEvents {
+    static let shared = ToolUseEvents()
+
+    typealias Listener = @Sendable (String) async -> Void
+    private var listeners: [UUID: Listener] = [:]
+
+    func addListener(_ listener: @escaping Listener) -> UUID {
+        let id = UUID()
+        listeners[id] = listener
+        return id
+    }
+
+    func removeListener(_ id: UUID) {
+        listeners.removeValue(forKey: id)
+    }
+
+    func emit(toolName: String) async {
+        let active = listeners.values
+        for listener in active {
+            await listener(toolName)
+        }
+    }
+}
+
 enum ToolsConfigLoader {
     static func load(from path: String) throws -> LoadedTools {
         let expanded = NSString(string: path).expandingTildeInPath
@@ -353,6 +377,7 @@ struct ExternalCommandTool: Tool {
         }
 
         do {
+            await ToolUseEvents.shared.emit(toolName: definition.name)
             DebugLog.log("tool call start name=\(definition.name) argKeys=\(values.keys.sorted().joined(separator: ","))")
             let response = try await ExternalToolExecutor.execute(tool: definition, arguments: values)
             DebugLog.log("tool call complete name=\(definition.name) responseLen=\(response.count)")

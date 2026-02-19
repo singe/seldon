@@ -1,6 +1,20 @@
 import Foundation
 import Combine
 
+private actor ToolNoticeBuffer {
+    private var names: [String] = []
+
+    func add(_ name: String) {
+        if !names.contains(name) {
+            names.append(name)
+        }
+    }
+
+    func all() -> [String] {
+        names
+    }
+}
+
 final class ChatViewModel: ObservableObject {
     @Published var input: String = ""
     @Published var isSending = false
@@ -42,6 +56,7 @@ final class ChatViewModel: ObservableObject {
                 DebugLog.log("GUI detached task entered")
                 await ToolCancellationState.shared.reset()
                 DebugLog.log("GUI detached task after ToolCancellationState.reset")
+                let toolNotices = ToolNoticeBuffer()
 
                 let response = try await runner.run(request) { token in
                     DebugLog.verbose("GUI onToken received tokenLen=\(token.count)")
@@ -54,14 +69,24 @@ final class ChatViewModel: ObservableObject {
                     } else {
                         DebugLog.log("GUI token target missing id=\(assistantMessageID.uuidString)")
                     }
+                } onToolUse: { toolName in
+                    await toolNotices.add(toolName)
+                    DebugLog.log("GUI tool notice buffered tool=\(toolName)")
                 }
 
                 DebugLog.log("GUI detached task completed responseLen=\(response.count)")
-                if let index = vm.messages.firstIndex(where: { $0.id == assistantMessageID }), vm.messages[index].text.isEmpty {
+                if let index = vm.messages.firstIndex(where: { $0.id == assistantMessageID }) {
                     var updated = vm.messages
-                    updated[index].text = response
+                    if updated[index].text.isEmpty {
+                        updated[index].text = response
+                        DebugLog.log("GUI fallback applied responseLen=\(response.count)")
+                    }
+                    for toolName in await toolNotices.all() {
+                        if !updated[index].toolNotices.contains(toolName) {
+                            updated[index].toolNotices.append(toolName)
+                        }
+                    }
                     vm.messages = updated
-                    DebugLog.log("GUI fallback applied responseLen=\(response.count)")
                 }
                 vm.finishSendTask()
             } catch is CancellationError {

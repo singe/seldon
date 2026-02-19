@@ -1,6 +1,27 @@
 import Foundation
 
 enum CLIRunner {
+    private actor ToolUsageState {
+        private var tools: [String] = []
+        private var printedAnyTokens = false
+
+        func markPrintedToken() {
+            printedAnyTokens = true
+        }
+
+        func noteTool(_ name: String) -> (isNew: Bool, printedAnyTokens: Bool) {
+            let isNew = !tools.contains(name)
+            if isNew {
+                tools.append(name)
+            }
+            return (isNew, printedAnyTokens)
+        }
+
+        func allTools() -> [String] {
+            tools
+        }
+    }
+
     private static let usage = """
     Usage:
       seldon                  Launch GUI
@@ -41,7 +62,13 @@ enum CLIRunner {
 
         do {
             let request = ChatRunRequest(prompt: trimmed, temperature: temperature, mode: .singleShot)
-            let response = try await runner.run(request)
+            let toolState = ToolUsageState()
+            let response = try await runner.run(request, onToolUse: { toolName in
+                _ = await toolState.noteTool(toolName)
+            })
+            for toolName in await toolState.allTools() {
+                print("[tool] \(toolName)")
+            }
             print(response)
         } catch {
             fputs("Error: \(error.localizedDescription)\n", stderr)
@@ -65,9 +92,19 @@ enum CLIRunner {
 
             do {
                 let request = ChatRunRequest(prompt: prompt, temperature: temperature, mode: .streaming)
+                let toolState = ToolUsageState()
 
                 _ = try await runner.run(request) { token in
+                    await toolState.markPrintedToken()
                     print(token, terminator: "")
+                    fflush(stdout)
+                } onToolUse: { toolName in
+                    let status = await toolState.noteTool(toolName)
+                    guard status.isNew else { return }
+                    if status.printedAnyTokens {
+                        print("")
+                    }
+                    print("[tool] \(toolName)")
                     fflush(stdout)
                 }
                 print("")
