@@ -41,6 +41,7 @@ struct SeldonApp: App {
             ContentView(
                 runner: AppRuntime.runner,
                 defaultTemperature: AppRuntime.defaultTemperature,
+                defaultSystemPrompt: AppRuntime.defaultSystemPrompt,
                 toolsAvailable: AppRuntime.toolsAvailable
             )
         }

@@ -12,11 +12,18 @@ final class ChatViewModel: ObservableObject {
     let toolToggleVisible: Bool
     private let runner: ChatRunner
     private let defaultTemperature: Double?
+    private let defaultSystemPrompt: String?
     private var currentResponseTask: Task<Void, Never>?
 
-    init(runner: ChatRunner = ChatRunner(), defaultTemperature: Double? = nil, toolToggleVisible: Bool = false) {
+    init(
+        runner: ChatRunner = ChatRunner(),
+        defaultTemperature: Double? = nil,
+        defaultSystemPrompt: String? = nil,
+        toolToggleVisible: Bool = false
+    ) {
         self.runner = runner
         self.defaultTemperature = defaultTemperature
+        self.defaultSystemPrompt = defaultSystemPrompt
         self.toolToggleVisible = toolToggleVisible
         self.toolCallingEnabled = toolToggleVisible
     }
@@ -35,6 +42,7 @@ final class ChatViewModel: ObservableObject {
             prompt: trimmed,
             temperature: defaultTemperature,
             mode: .streaming,
+            systemPrompt: defaultSystemPrompt,
             toolsEnabled: !toolToggleVisible || toolCallingEnabled
         )
         let runner = self.runner

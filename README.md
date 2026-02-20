@@ -42,8 +42,7 @@ seldon
 ```
 
 This launches a native window (`Seldon Chat`).
-<img width="628" height="474" alt="image" src="https://github.com/user-attachments/assets/eb6fae9c-f192-4d5f-8ec2-2630fc34ece4" />
-
+<img width="940" height="962" alt="image" src="./assets/screenshot.png" />
 
 ## CLI Mode
 
@@ -87,6 +86,16 @@ Example config is included at `tools.example.yaml` with three basic tools:
 - `web_search` implemented by `tools/web_search.py`
 - `fetch_url` implemented by `tools/fetch_url.py`
 - `calculator` implemented by `tools/calculator.py`
+
+## System Prompt
+
+Change the system prompt passed to the LLM with `--system`:
+
+```bash
+seldon --system "you are Hari Seldon"
+```
+
+This will work for the GUI, cli or prompt mode.
 
 ## Foundation Models support
 

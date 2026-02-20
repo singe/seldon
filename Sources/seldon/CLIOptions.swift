@@ -6,6 +6,7 @@ struct CLIOptions {
     let prompt: String?
     let temperature: Double?
     let toolsPath: String?
+    let systemPrompt: String?
     let selfTestGUIFlow: Bool
     let parseError: String?
 
@@ -15,6 +16,7 @@ struct CLIOptions {
         var prompt: String?
         var temperature: Double?
         var toolsPath: String?
+        var systemPrompt: String?
         var selfTestGUIFlow = false
         var parseError: String?
 
@@ -45,6 +47,21 @@ struct CLIOptions {
                     prompt = ""
                     index += 1
                 }
+                continue
+            }
+            if arg == "--system" {
+                if index + 1 < arguments.count {
+                    systemPrompt = arguments[index + 1]
+                    index += 2
+                } else {
+                    systemPrompt = ""
+                    index += 1
+                }
+                continue
+            }
+            if arg.hasPrefix("--system=") {
+                systemPrompt = String(arg.dropFirst("--system=".count))
+                index += 1
                 continue
             }
             if arg.hasPrefix("--prompt=") {
@@ -126,6 +143,7 @@ struct CLIOptions {
             prompt: prompt,
             temperature: temperature,
             toolsPath: toolsPath,
+            systemPrompt: systemPrompt,
             selfTestGUIFlow: selfTestGUIFlow,
             parseError: parseError
         )

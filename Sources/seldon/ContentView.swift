@@ -6,11 +6,17 @@ struct ContentView: View {
     @StateObject private var viewModel: ChatViewModel
     @FocusState private var inputIsFocused: Bool
 
-    init(runner: ChatRunner = ChatRunner(), defaultTemperature: Double? = nil, toolsAvailable: Bool = false) {
+    init(
+        runner: ChatRunner = ChatRunner(),
+        defaultTemperature: Double? = nil,
+        defaultSystemPrompt: String? = nil,
+        toolsAvailable: Bool = false
+    ) {
         _viewModel = StateObject(
             wrappedValue: ChatViewModel(
                 runner: runner,
                 defaultTemperature: defaultTemperature,
+                defaultSystemPrompt: defaultSystemPrompt,
                 toolToggleVisible: toolsAvailable
             )
         )

@@ -27,6 +27,7 @@ enum CLIRunner {
     Options:
       --temperature VALUE         Sampling temperature (0.0 to 2.0) for CLI/GUI/prompt
       --tools PATH                Load tool definitions from a YAML file
+      --system TEXT               Set system instructions for model behavior
       --help, -h                  Show this help
     """
 
@@ -42,22 +43,37 @@ enum CLIRunner {
         }
 
         if let prompt = options.prompt {
-            await runSingle(prompt: prompt, temperature: options.temperature, runner: runner)
+            await runSingle(
+                prompt: prompt,
+                temperature: options.temperature,
+                systemPrompt: options.systemPrompt,
+                runner: runner
+            )
             return
         }
 
         guard options.interactive else { return }
-        await runInteractive(temperature: options.temperature, runner: runner)
+        await runInteractive(
+            temperature: options.temperature,
+            systemPrompt: options.systemPrompt,
+            runner: runner
+        )
     }
 
-    private static func runSingle(prompt: String, temperature: Double?, runner: ChatRunner) async {
+    private static func runSingle(prompt: String, temperature: Double?, systemPrompt: String?, runner: ChatRunner) async {
         guard let trimmed = ChatTextUtilities.normalizePrompt(prompt) else {
             fputs("Error: --prompt requires a non-empty value.\n", stderr)
             exit(2)
         }
 
         do {
-            let request = ChatRunRequest(prompt: trimmed, temperature: temperature, mode: .singleShot)
+            let normalizedSystemPrompt = systemPrompt.flatMap(ChatTextUtilities.normalizePrompt)
+            let request = ChatRunRequest(
+                prompt: trimmed,
+                temperature: temperature,
+                mode: .singleShot,
+                systemPrompt: normalizedSystemPrompt
+            )
             let toolState = ToolUsageState()
             let response = try await runner.run(request, onToolUse: { toolName in
                 let status = await toolState.noteTool(toolName)
@@ -72,7 +88,7 @@ enum CLIRunner {
         }
     }
 
-    private static func runInteractive(temperature: Double?, runner: ChatRunner) async {
+    private static func runInteractive(temperature: Double?, systemPrompt: String?, runner: ChatRunner) async {
         print("seldon CLI (type 'exit' or press Ctrl-D to quit)")
         while true {
             print("seldon> ", terminator: "")
@@ -87,7 +103,13 @@ enum CLIRunner {
             if prompt == "exit" || prompt == "quit" { break }
 
             do {
-                let request = ChatRunRequest(prompt: prompt, temperature: temperature, mode: .streaming)
+                let normalizedSystemPrompt = systemPrompt.flatMap(ChatTextUtilities.normalizePrompt)
+                let request = ChatRunRequest(
+                    prompt: prompt,
+                    temperature: temperature,
+                    mode: .streaming,
+                    systemPrompt: normalizedSystemPrompt
+                )
                 let toolState = ToolUsageState()
 
                 _ = try await runner.run(request) { token in

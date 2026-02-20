@@ -38,6 +38,7 @@ enum SeldonEntrypoint {
         await MainActor.run {
             AppRuntime.runner = runner
             AppRuntime.defaultTemperature = options.temperature
+            AppRuntime.defaultSystemPrompt = options.systemPrompt.flatMap(ChatTextUtilities.normalizePrompt)
             AppRuntime.toolsAvailable = loadedTools != nil
         }
         DebugLog.log("Launching GUI mode")

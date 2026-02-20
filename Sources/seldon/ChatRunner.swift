@@ -9,12 +9,14 @@ struct ChatRunRequest {
     let prompt: String
     let temperature: Double?
     let mode: ChatRunMode
+    let systemPrompt: String?
     let toolsEnabled: Bool
 
-    init(prompt: String, temperature: Double?, mode: ChatRunMode, toolsEnabled: Bool = true) {
+    init(prompt: String, temperature: Double?, mode: ChatRunMode, systemPrompt: String? = nil, toolsEnabled: Bool = true) {
         self.prompt = prompt
         self.temperature = temperature
         self.mode = mode
+        self.systemPrompt = systemPrompt
         self.toolsEnabled = toolsEnabled
     }
 }
@@ -35,7 +37,7 @@ actor ChatRunner {
         onToken: @Sendable (String) async -> Void = { _ in },
         onToolUse: @escaping @Sendable (String) async -> Void = { _ in }
     ) async throws -> String {
-        DebugLog.log("ChatRunner.run enter mode=\(request.mode) toolsEnabled=\(request.toolsEnabled) temp=\(request.temperature?.description ?? "nil") promptLen=\(request.prompt.count)")
+        DebugLog.log("ChatRunner.run enter mode=\(request.mode) toolsEnabled=\(request.toolsEnabled) temp=\(request.temperature?.description ?? "nil") systemLen=\(request.systemPrompt?.count ?? 0) promptLen=\(request.prompt.count)")
         await ToolCancellationState.shared.reset()
         DebugLog.log("ChatRunner.run after cancel reset")
         let listenerID = await ToolUseEvents.shared.addListener(onToolUse)
@@ -47,6 +49,7 @@ actor ChatRunner {
                 let output = try await modelClient.send(
                     prompt: request.prompt,
                     temperature: request.temperature,
+                    systemPrompt: request.systemPrompt,
                     toolsEnabled: request.toolsEnabled
                 )
                 DebugLog.log("ChatRunner.run singleShot return len=\(output.count)")
@@ -57,6 +60,7 @@ actor ChatRunner {
                 let output = try await modelClient.stream(
                     prompt: request.prompt,
                     temperature: request.temperature,
+                    systemPrompt: request.systemPrompt,
                     toolsEnabled: request.toolsEnabled,
                     onToken: onToken
                 )
