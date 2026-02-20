@@ -4,17 +4,21 @@ import Combine
 final class ChatViewModel: ObservableObject {
     @Published var input: String = ""
     @Published var isSending = false
+    @Published var toolCallingEnabled: Bool
     @Published var messages: [ChatMessage] = [
         .init(role: .system, text: "Ready. Ask anything and I will use Apple on-device Foundation Models when available.")
     ]
 
+    let toolToggleVisible: Bool
     private let runner: ChatRunner
     private let defaultTemperature: Double?
     private var currentResponseTask: Task<Void, Never>?
 
-    init(runner: ChatRunner = ChatRunner(), defaultTemperature: Double? = nil) {
+    init(runner: ChatRunner = ChatRunner(), defaultTemperature: Double? = nil, toolToggleVisible: Bool = false) {
         self.runner = runner
         self.defaultTemperature = defaultTemperature
+        self.toolToggleVisible = toolToggleVisible
+        self.toolCallingEnabled = toolToggleVisible
     }
 
     func send() {
@@ -27,7 +31,12 @@ final class ChatViewModel: ObservableObject {
         messages.append(.init(id: assistantMessageID, role: .assistant, text: ""))
         DebugLog.log("GUI send() started promptLen=\(trimmed.count) messageID=\(assistantMessageID.uuidString)")
 
-        let request = ChatRunRequest(prompt: trimmed, temperature: defaultTemperature, mode: .streaming)
+        let request = ChatRunRequest(
+            prompt: trimmed,
+            temperature: defaultTemperature,
+            mode: .streaming,
+            toolsEnabled: !toolToggleVisible || toolCallingEnabled
+        )
         let runner = self.runner
         DebugLog.log("GUI creating detached response task")
 

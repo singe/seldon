@@ -1,12 +1,14 @@
 import Foundation
 
 actor SelfTestFakeModel: ChatModeling {
-    func send(prompt: String, temperature: Double?) async throws -> String {
+    func send(prompt: String, temperature: Double?, toolsEnabled: Bool) async throws -> String {
         "single-shot"
     }
 
-    func stream(prompt: String, temperature: Double?, onToken: @Sendable (String) async -> Void) async throws -> String {
-        await ToolUseEvents.shared.emit(toolName: "calculator")
+    func stream(prompt: String, temperature: Double?, toolsEnabled: Bool, onToken: @Sendable (String) async -> Void) async throws -> String {
+        if toolsEnabled {
+            await ToolUseEvents.shared.emit(toolName: "calculator")
+        }
         await onToken("The answer is ")
         await onToken("42")
         return "The answer is 42"

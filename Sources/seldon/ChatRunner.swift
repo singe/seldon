@@ -9,6 +9,14 @@ struct ChatRunRequest {
     let prompt: String
     let temperature: Double?
     let mode: ChatRunMode
+    let toolsEnabled: Bool
+
+    init(prompt: String, temperature: Double?, mode: ChatRunMode, toolsEnabled: Bool = true) {
+        self.prompt = prompt
+        self.temperature = temperature
+        self.mode = mode
+        self.toolsEnabled = toolsEnabled
+    }
 }
 
 actor ChatRunner {
@@ -27,7 +35,7 @@ actor ChatRunner {
         onToken: @Sendable (String) async -> Void = { _ in },
         onToolUse: @escaping @Sendable (String) async -> Void = { _ in }
     ) async throws -> String {
-        DebugLog.log("ChatRunner.run enter mode=\(request.mode) temp=\(request.temperature?.description ?? "nil") promptLen=\(request.prompt.count)")
+        DebugLog.log("ChatRunner.run enter mode=\(request.mode) toolsEnabled=\(request.toolsEnabled) temp=\(request.temperature?.description ?? "nil") promptLen=\(request.prompt.count)")
         await ToolCancellationState.shared.reset()
         DebugLog.log("ChatRunner.run after cancel reset")
         let listenerID = await ToolUseEvents.shared.addListener(onToolUse)
@@ -36,7 +44,11 @@ actor ChatRunner {
             switch request.mode {
             case .singleShot:
                 DebugLog.log("ChatRunner.run singleShot dispatch")
-                let output = try await modelClient.send(prompt: request.prompt, temperature: request.temperature)
+                let output = try await modelClient.send(
+                    prompt: request.prompt,
+                    temperature: request.temperature,
+                    toolsEnabled: request.toolsEnabled
+                )
                 DebugLog.log("ChatRunner.run singleShot return len=\(output.count)")
                 await ToolUseEvents.shared.removeListener(listenerID)
                 return output
@@ -45,6 +57,7 @@ actor ChatRunner {
                 let output = try await modelClient.stream(
                     prompt: request.prompt,
                     temperature: request.temperature,
+                    toolsEnabled: request.toolsEnabled,
                     onToken: onToken
                 )
                 DebugLog.log("ChatRunner.run streaming return len=\(output.count)")

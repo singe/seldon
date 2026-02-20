@@ -4,8 +4,8 @@ import FoundationModels
 #endif
 
 protocol ChatModeling: Sendable {
-    func send(prompt: String, temperature: Double?) async throws -> String
-    func stream(prompt: String, temperature: Double?, onToken: @Sendable (String) async -> Void) async throws -> String
+    func send(prompt: String, temperature: Double?, toolsEnabled: Bool) async throws -> String
+    func stream(prompt: String, temperature: Double?, toolsEnabled: Bool, onToken: @Sendable (String) async -> Void) async throws -> String
 }
 
 actor AppleFoundationModelClient: ChatModeling {
@@ -15,11 +15,11 @@ actor AppleFoundationModelClient: ChatModeling {
         self.loadedTools = loadedTools
     }
 
-    func send(prompt: String, temperature: Double?) async throws -> String {
+    func send(prompt: String, temperature: Double?, toolsEnabled: Bool) async throws -> String {
         #if canImport(FoundationModels)
         if #available(macOS 26.0, *) {
-            let tools = FoundationToolFactory.makeTools(from: loadedTools)
-            DebugLog.log("send() start tools=\(tools.count) temp=\(temperature?.description ?? "nil") promptLen=\(prompt.count)")
+            let tools = toolsEnabled ? FoundationToolFactory.makeTools(from: loadedTools) : []
+            DebugLog.log("send() start tools=\(tools.count) toolsEnabled=\(toolsEnabled) temp=\(temperature?.description ?? "nil") promptLen=\(prompt.count)")
             let session = LanguageModelSession(tools: tools)
             let result: LanguageModelSession.Response<String>
             if let temperature {
@@ -36,11 +36,11 @@ actor AppleFoundationModelClient: ChatModeling {
         throw ChatClientError.unsupported
     }
 
-    func stream(prompt: String, temperature: Double?, onToken: @Sendable (String) async -> Void) async throws -> String {
+    func stream(prompt: String, temperature: Double?, toolsEnabled: Bool, onToken: @Sendable (String) async -> Void) async throws -> String {
         #if canImport(FoundationModels)
         if #available(macOS 26.0, *) {
-            let tools = FoundationToolFactory.makeTools(from: loadedTools)
-            DebugLog.log("stream() start tools=\(tools.count) temp=\(temperature?.description ?? "nil") promptLen=\(prompt.count)")
+            let tools = toolsEnabled ? FoundationToolFactory.makeTools(from: loadedTools) : []
+            DebugLog.log("stream() start tools=\(tools.count) toolsEnabled=\(toolsEnabled) temp=\(temperature?.description ?? "nil") promptLen=\(prompt.count)")
             let session = LanguageModelSession(tools: tools)
             var contentSoFar = ""
             var ignoredInitialNull = false

@@ -6,8 +6,14 @@ struct ContentView: View {
     @StateObject private var viewModel: ChatViewModel
     @FocusState private var inputIsFocused: Bool
 
-    init(runner: ChatRunner = ChatRunner(), defaultTemperature: Double? = nil) {
-        _viewModel = StateObject(wrappedValue: ChatViewModel(runner: runner, defaultTemperature: defaultTemperature))
+    init(runner: ChatRunner = ChatRunner(), defaultTemperature: Double? = nil, toolsAvailable: Bool = false) {
+        _viewModel = StateObject(
+            wrappedValue: ChatViewModel(
+                runner: runner,
+                defaultTemperature: defaultTemperature,
+                toolToggleVisible: toolsAvailable
+            )
+        )
     }
 
     var body: some View {
@@ -38,23 +44,37 @@ struct ContentView: View {
                 }
             }
 
-            HStack(spacing: 8) {
-                TextField("Type a prompt...", text: $viewModel.input, axis: .vertical)
-                    .textFieldStyle(.roundedBorder)
-                    .lineLimit(1...4)
-                    .focused($inputIsFocused)
-                    .onSubmit {
-                        viewModel.send()
-                    }
-
-                Button(viewModel.isSending ? "Stop" : "Send") {
-                    if viewModel.isSending {
-                        viewModel.stop()
-                    } else {
-                        viewModel.send()
+            VStack(spacing: 4) {
+                if viewModel.toolToggleVisible {
+                    HStack {
+                        Toggle("Tools", isOn: $viewModel.toolCallingEnabled)
+                            .toggleStyle(.switch)
+                            .controlSize(.mini)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                            .disabled(viewModel.isSending)
+                        Spacer()
                     }
                 }
-                .disabled(!viewModel.isSending && ChatTextUtilities.normalizePrompt(viewModel.input) == nil)
+
+                HStack(spacing: 8) {
+                    TextField("Type a prompt...", text: $viewModel.input, axis: .vertical)
+                        .textFieldStyle(.roundedBorder)
+                        .lineLimit(1...4)
+                        .focused($inputIsFocused)
+                        .onSubmit {
+                            viewModel.send()
+                        }
+
+                    Button(viewModel.isSending ? "Stop" : "Send") {
+                        if viewModel.isSending {
+                            viewModel.stop()
+                        } else {
+                            viewModel.send()
+                        }
+                    }
+                    .disabled(!viewModel.isSending && ChatTextUtilities.normalizePrompt(viewModel.input) == nil)
+                }
             }
             .padding(12)
         }

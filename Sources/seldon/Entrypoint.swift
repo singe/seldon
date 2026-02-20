@@ -38,6 +38,7 @@ enum SeldonEntrypoint {
         await MainActor.run {
             AppRuntime.runner = runner
             AppRuntime.defaultTemperature = options.temperature
+            AppRuntime.toolsAvailable = loadedTools != nil
         }
         DebugLog.log("Launching GUI mode")
         SeldonApp.main()
