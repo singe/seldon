@@ -2,7 +2,9 @@
 
 <img width="889" height="343" alt="image" src="./assets/logo.png" />
 
-seldon lets you interact with Apple's on-device LLM Foundation models on macOS. It's a minimal native macOS chat app built with SwiftUI as a Swift Package. It has a UI, terminal REPL and single shot command mode.
+`seldon` lets you interact with Apple's on-device LLM Foundation models on macOS. It's a minimal native macOS chat app built with SwiftUI as a Swift Package. It has a UI, terminal REPL and single shot command mode as well as supporting tool calling.
+
+Save money and privacy by using a local model, and save resources by using a built-in LLM without requiring third party applications.
 
 By @singe
 
@@ -23,19 +25,9 @@ make app           # dist/Seldon-macos-<arch>.app.zip
 make release-assets
 ```
 
-The app bundle launcher automatically runs:
-
-```bash
---tools <bundled tools.example.yaml>
-```
-
-GitHub releases publish:
-
-1. `seldon-macos-<arch>` (standalone binary)
-2. `seldon-macos-<arch>-with-tools.tar.gz` (binary + `tools/` + `tools.example.yaml`)
-3. `Seldon-macos-<arch>.app.zip` (macOS app bundle)
-
 ## GUI Mode
+
+Run the `.app` or run the binary.
 
 ```bash
 seldon
@@ -66,7 +58,7 @@ Optional sampling temperature for CLI modes (`0.0` to `2.0`):
 
 ```bash
 seldon --cli --temperature 0.2
-seldon --prompt "Summarize this log file" --temperature=0.7
+seldon --prompt "Tell me where to find the second foundation" --temperature=0.7
 ```
 
 The same `--temperature` value is also applied to GUI mode if you launch `seldon` with that flag.
